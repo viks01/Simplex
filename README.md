@@ -2,11 +2,11 @@
 - A programming assignment in optimization methods.
 - Uses simplex algorithm to solve linear programming problems.
 - Optimization problem of the form 
-$$
-\text{min} c^{T}x \\
-\text{subject to} Ax = b \\
+```math
+\text{min} c^{T}x\\
+\text{subject to} Ax = b\\
 x \geq 0
-$$
+```
 - Input from stdin.
 - Output to stdout.
 - Uses two phase method for initialization of simplex algorithm if initial basic feasible solution is not easy to find. 
