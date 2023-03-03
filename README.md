@@ -3,9 +3,7 @@
 - Uses simplex algorithm to solve linear programming problems.
 - Optimization problem of the form 
 ```math
-\text{min} c^{T}x\\
-\text{subject to} Ax = b\\
-x \geq 0
+\text{min} c^{T}x,\\\text{subject to} Ax = b,\\x \geq 0
 ```
 - Input from stdin.
 - Output to stdout.
