@@ -1,10 +1,17 @@
 # Simplex Algorithm 
 - A programming assignment in optimization methods.
 - Uses simplex algorithm to solve linear programming problems.
+- Optimization problem of the form 
+```math
+min c^{T}x
+subject to Ax = b
+x \geq 0
+```
 - Input from stdin.
 - Output to stdout.
 - Uses two phase method for initialization of simplex algorithm if initial basic feasible solution is not easy to find. 
 - Uses Bland’s rule only if cycling is detected.
+- Handles unbounded solution and no solution cases.
 - Created in python.
 
 ### Input format
