@@ -3,8 +3,8 @@
 - Uses simplex algorithm to solve linear programming problems.
 - Optimization problem of the form 
 ```math
-min c^{T}x
-subject to Ax = b
+min \hspace{4} c^{T}x \\
+subject to Ax = b \\
 x \geq 0
 ```
 - Input from stdin.
