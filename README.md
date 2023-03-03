@@ -1,9 +1,11 @@
 # Simplex Algorithm 
-- A programming assignment in optimization methods
-- Uses simplex algorithm to solve linear programming problems
-- Input from stdin
-- Output to stdout
-- Created in python
+- A programming assignment in optimization methods.
+- Uses simplex algorithm to solve linear programming problems.
+- Input from stdin.
+- Output to stdout.
+- Uses two phase method for initialization of simplex algorithm if initial basic feasible solution is not easy to find. 
+- Uses Bland’s rule only if cycling is detected.
+- Created in python.
 
 ### Input format
 - The first line contains three integers: n, u, and v.
