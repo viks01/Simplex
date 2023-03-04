@@ -17,7 +17,7 @@ def get_solution(table, basic, size):
     return solution
 
 # Format and display output based on status
-def display_result(table, basic, status):
+def display_result(table, basic, status, N=0):
     if status == "Success" or status == "Cycling detected":
         solution = get_solution(table, basic, len(table[0]) - 1)
 
@@ -25,7 +25,12 @@ def display_result(table, basic, status):
             print(status)
 
         print(table[0][-1])
-        print(*solution)
+        if N > 0:
+            for i in range(N):
+                print(solution[i], end=" ")
+            print()
+        else:
+            print(*solution)
     else:
         print(status)
 
@@ -89,8 +94,8 @@ x = []
 basic = []
 
 if twoPhased:
-    print('Two-phased')
-    print()
+    # print('Two-phased')
+    # print()
 
     # Phase 1
     
@@ -176,8 +181,8 @@ if twoPhased:
     for i in range(1, m+1):
         table[i].append(b[i-1])
 
-    print(*table, sep="\n")
-    print()
+    # print(*table, sep="\n")
+    # print()
 
     # Make basic variables zero in 1st row
     for j in range(n, n + num_artificial):
@@ -191,18 +196,18 @@ if twoPhased:
             for i in range(n + num_artificial + 1):
                 table[0][i] -= pivot * table[idx][i]        # Equivalent to R_0 --> R_0 + R_idx
     
-    print(*table, sep="\n")
-    print()
+    # print(*table, sep="\n")
+    # print()
 
     # Run simplex algorithm
     table, basic, status = simplex(table, ordered_basic)
     solution = get_solution(table, basic, len(table[0]) - 1)
 
-    print(*table, sep="\n")
-    print()
-    print(basic)
-    print(solution)
-    print()
+    # print(*table, sep="\n")
+    # print()
+    # print(basic)
+    # print(solution)
+    # print()
     
     # Check for infeasibility
     infeasible = False
@@ -212,7 +217,7 @@ if twoPhased:
             status = "Infeasible"
             break
 
-    if table[0][-1] != 0:
+    if abs(table[0][-1]) > 0.001:
         infeasible = True
         status = "Infeasible"
 
@@ -245,9 +250,9 @@ if twoPhased:
 
         # Run simplex algorithm and show output
         new_table, basic, status = simplex(new_table, basic)
-        print(*new_table, sep='\n')
-        print(basic)
-        display_result(new_table, basic, status)
+        # print(*new_table, sep='\n')
+        # print(basic)
+        display_result(new_table, basic, status, N)
                 
 else:
     # Initialize vector of decision variables (non-basic variables are 0 and basic variables are elements of b)
