@@ -13,9 +13,10 @@ def simplex(table, basic):
             maxVal = val
             maxIdx = i
     
-    # Check for leaving variable along the column of entering variable (maxIdx)
     # If maxVal <= 0, then the while loop is skipped and the initial basis selected is optimal
     while maxVal > 0:
+
+        # Check for leaving variable along the column of entering variable (maxIdx)
         minVal = float("inf")
         minIdx = -1                              # index of leaving variable
         for i in range(1, len(table)):
@@ -74,9 +75,10 @@ def simplex(table, basic):
                 maxVal = val
                 maxIdx = i
         
-        # Check for leaving variable along the column of entering variable (maxIdx)
         # If maxIdx < 0, then the while loop is skipped and the optimal solution is reached
         while maxIdx >= 0:
+
+            # Check for leaving variable along the column of entering variable (maxIdx)
             minVal = float("inf")
             minIdx = -1                              # index of leaving variable
             for i in range(1, len(table)):
