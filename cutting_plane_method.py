@@ -456,8 +456,7 @@ if not cutting_plane:
 else:
     #################################### Cutting Plane Method ####################################
 
-    counter = 0
-    while cutting_plane and counter < 4:
+    while cutting_plane:
 
         # Find first cutting plane by finding rowIdx, the row of maximum fractional value in last/RHS column
         maxFrac = float("-inf")
@@ -507,8 +506,6 @@ else:
             if abs(val - int(val)) > 0.001:
                 cutting_plane = True
                 break
-
-        counter += 1
 
     ##############################################################################################
     
