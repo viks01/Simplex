@@ -64,8 +64,7 @@ def simplex(table, basic):
 
     # Bland's rule
     if status == "Cycling detected":
-        print(status)
-        
+
         # Initial check of first row: (c_B)(A_B^-1)(a_j) - (c_j) > 0
         maxVal = float("inf")
         maxIdx = -1                                  # index of entering variable
@@ -140,6 +139,8 @@ def display_result(table, basic, status, N=0):
         solution = get_solution(table, basic, len(table[0]) - 1)
         res = solution[:N]
         
+        if status == "Cycling detected":
+            print(status)
         print(table[0][-1])
         print(*res)
     else:
