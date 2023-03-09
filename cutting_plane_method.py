@@ -441,13 +441,6 @@ else:
 solution = get_solution(table, basic, len(table[0]) - 1)
 optimal_point = solution[:N]
 
-print(solution)
-print()
-print(basic)
-print()
-print(*table, sep='\n')
-print()
-
 # Check for integer solution
 cutting_plane = False
 for val in optimal_point:
@@ -462,7 +455,7 @@ if not cutting_plane:
 
 else:
     #################################### Cutting Plane Method ####################################
-    
+
     counter = 0
     while cutting_plane and counter < 4:
 
@@ -482,10 +475,6 @@ else:
             break
 
         cp = table[rowIdx][:]
-        print('----------------------------------------------')
-        print('cp')
-        print(cp)
-        print()
 
         # Modify the inequality at rowIdx
         for i in range(len(cp)):
@@ -501,18 +490,9 @@ else:
             table[i].append(table[i][-1])
             table[i][-2] = 0
         table.append(cp)
-        print('new cp')
-        print(cp)
-        print()
-        print(*table, sep='\n')
-        print()
 
         # Add new slack variable to basic variables
         basic.append(len(cp) - 2)
-        print('basic')
-        print(basic)
-        print('----------------------------------------------')
-        print()
 
         # Run simplex algorithm
         table, basic, status = dual_simplex(table, basic)
@@ -532,6 +512,6 @@ else:
 
     ##############################################################################################
     
-for i in range(len(table)):
-    table[i][-1] = int(table[i][-1])
-display_result(table, basic, status, N)
+    for i in range(len(table)):
+        table[i][-1] = int(table[i][-1])
+    display_result(table, basic, status, N)
