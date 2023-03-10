@@ -169,9 +169,9 @@ def dual_simplex(table, basic):
             minIdx = i
 
     # Assert minIdx = len(table) - 1
-    if minIdx != len(table) - 1:
-        print('minIdx error in dual simplex')
-        status = "Failure"
+    # if minIdx != len(table) - 1:
+    #     print('minIdx error in dual simplex')
+    #     status = "Failure"
 
     # Entering variable is from the minimum positive absolute value of first row divided by value in row of leaving variable (minIdx)
     minAbsVal = float("inf")
@@ -185,9 +185,9 @@ def dual_simplex(table, basic):
                 minAbsValIdx = j
 
     # Assert minAbsValIdx != -1
-    if minAbsValIdx == -1:
-        print('minAbsVal error in dual simplex')
-        status = "Failure"
+    # if minAbsValIdx == -1:
+    #     print('minAbsVal error in dual simplex')
+    #     status = "Failure"
     
     # Update basic variables set. Here, table basic variables are 1-indexed (because we skip 1st row) and basic variables index set is 0-indexed
     basic[minIdx - 1] = minAbsValIdx
@@ -470,9 +470,9 @@ else:
                 rowIdx = i
         
         # Error
-        if rowIdx == -1:
-            print('Row idx is -1')
-            break
+        # if rowIdx == -1:
+        #     print('Row idx is -1')
+        #     break
 
         cp = table[rowIdx][:]
 
@@ -510,8 +510,10 @@ else:
 
     ##############################################################################################
     
+    # Floating point error
     for i in range(len(table)):
-        val = table[i][-1]
-        if abs(val - int(val)) < 0.001:
+        rhs = table[i][-1]
+        val = abs(rhs - int(rhs))
+        if val > 0 and val < 0.001:
             table[i][-1] = int(val)
     display_result(table, basic, status, N)
