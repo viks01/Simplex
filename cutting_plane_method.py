@@ -152,6 +152,7 @@ def display_result(table, basic, status, N=0):
     else:
         print(status)
 
+# Does pivoting one time
 def dual_simplex(table, basic):
     status = "Success"
 
@@ -510,5 +511,7 @@ else:
     ##############################################################################################
     
     for i in range(len(table)):
-        table[i][-1] = int(table[i][-1])
+        val = table[i][-1]
+        if abs(val - int(val)) < 0.001:
+            table[i][-1] = int(val)
     display_result(table, basic, status, N)
