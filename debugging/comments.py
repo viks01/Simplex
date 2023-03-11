@@ -60,3 +60,14 @@
     #         rowIdxs.append(rowIdx)
     #     if len(basic) == m:
     #         break
+
+        # for j in basic:
+        #     pivot = new_table[0][j]
+        #     if pivot != 0:
+        #         idx = 0
+        #         for i in range(1, m+1):
+        #             if new_table[i][j] == 1:
+        #                 idx = i
+        #                 break
+        #         for i in range(n+1):
+        #             new_table[0][i] -= pivot * new_table[idx][i]
