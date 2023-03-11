@@ -71,3 +71,15 @@
         #                 break
         #         for i in range(n+1):
         #             new_table[0][i] -= pivot * new_table[idx][i]
+
+    # Directly makes artificial variable coefficients in 1st row 0, irrespective of objective vector e 
+    # for j in range(n, t)
+    #     pivot = table[0][j]
+    #     if pivot != 0:
+    #         idx = 0
+    #         for i in range(1, m+1):
+    #             if table[i][j] == 1:
+    #                 idx = i
+    #                 break
+    #         for i in range(t + 1):
+    #             table[0][i] -= pivot * table[idx][i]
