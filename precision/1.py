@@ -120,19 +120,36 @@ def simplex(table, basic):
 
     return table, basic, status
 
+# Initialize vector of decision variables (non-basic variables are 0 and basic variables are elements of b)
+def initial_x0(basic, size, b):
+    x = []
+    i = 0
+    for j in range(size):
+        val = 0
+        if j in basic:
+            val = b[i]
+            i += 1
+        x.append(val)
+    return x
+
 # Get the solution vector after simplex is run
 def get_solution(table, basic, size):
     solution = []
+    rhs = []
+    for i in range(len(table)):
+        rhs.append(table[i][-1])
+
+    # size = total number of variables in the solution vector
     for i in range(size):
-        if i not in basic:
+        idx = -1
+        for j in range(len(basic)):
+            if basic[j] == i:
+                idx = j
+                break
+        if idx == -1:
             solution.append(0)
         else:
-            idx = 0
-            for j in range(len(basic)):
-                if basic[j] == i:
-                    idx = j
-                    break
-            solution.append(table[idx + 1][-1])
+            solution.append(rhs[idx + 1])
     return solution
 
 # Format and display output based on status
@@ -237,7 +254,7 @@ if twoPhased:
             A1[i].append(val)
 
     # Update the basic variables list to include artificial variables
-    for i in range(n, n + num_artificial):
+    for i in range(n, t):
         basic.append(i)
 
     # Order the basic variables by position of 1 in identity column (based on row)
@@ -253,14 +270,7 @@ if twoPhased:
         e.append(1)
 
     # Initialize vector of decision variables (non-basic variables are 0 and basic variables are elements of b)
-    x = []
-    i = 0
-    for j in range(t):
-        val = 0
-        if j in ordered_basic:
-            val = b[i]
-            i += 1
-        x.append(val)
+    x = initial_x0(ordered_basic, t, b)
 
     ################################### Initialize tableau form ###################################
     # First row (augmented with objective value in last column)
@@ -318,13 +328,13 @@ if twoPhased:
         new_table = [[-i for i in c]]
         new_table[0].append(0)
         for i in range(1, len(table)):
-            # Don't add rows corresponding to artificial variables
+            # Don't add rows corresponding to artificial variables (in case of redundant constraint)
             if basic[i-1] < n:
                 row = table[i][:n]
                 row.append(table[i][-1])
                 new_table.append(row)
 
-        # Modify basic to not include artificial variables
+        # Modify basic to exclude artificial variables (in case of redundant constraint)
         new_basic = []
         for j in basic:
             if j < n:

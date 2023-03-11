@@ -122,21 +122,36 @@ def simplex(table, basic):
 
     return table, basic, status
 
+# Initialize vector of decision variables (non-basic variables are 0 and basic variables are elements of b)
+def initial_x0(basic, size, b):
+    x = []
+    i = 0
+    for j in range(size):
+        val = 0
+        if j in basic:
+            val = b[i]
+            i += 1
+        x.append(val)
+    return x
+
 # Get the solution vector after simplex is run
 def get_solution(table, basic, size):
     solution = []
+    rhs = []
+    for i in range(len(table)):
+        rhs.append(table[i][-1])
 
     # size = total number of variables in the solution vector
     for i in range(size):
-        if i not in basic:
+        idx = -1
+        for j in range(len(basic)):
+            if basic[j] == i:
+                idx = j
+                break
+        if idx == -1:
             solution.append(0)
         else:
-            idx = 0
-            for j in range(len(basic)):
-                if basic[j] == i:
-                    idx = j
-                    break
-            solution.append(table[idx + 1][-1])
+            solution.append(rhs[idx + 1])
     return solution
 
 # Format and display output based on status
@@ -155,7 +170,7 @@ def display_result(table, basic, status, N=0):
     else:
         print(status)
 
-# Does pivoting one time
+# Does pivoting
 def dual_simplex(table, basic):
     status = "Success"
 
@@ -176,36 +191,52 @@ def dual_simplex(table, basic):
     #     print('minIdx error in dual simplex')
     #     status = "Failure"
 
-    # Entering variable is from the minimum positive absolute value of first row divided by value in row of leaving variable (minIdx)
-    minAbsVal = float("inf")
-    minAbsValIdx = -1
-    for j in range(len(table[0]) - 1):
-        denom = table[minIdx][j]
-        if denom != 0:
-            val = abs(table[0][j] / denom)
-            if val > 0 and val < minAbsVal:
-                minAbsVal = val
-                minAbsValIdx = j
+    # If minVal >= 0, then the current solution is optimal and the while loop ends
+    while minVal < 0:
 
-    # Assert minAbsValIdx != -1
-    # if minAbsValIdx == -1:
-    #     print('minAbsVal error in dual simplex')
-    #     status = "Failure"
-    
-    # Update basic variables set. Here, table basic variables are 1-indexed (because we skip 1st row) and basic variables index set is 0-indexed
-    basic[minIdx - 1] = minAbsValIdx
+        # Entering variable is from the minimum positive absolute value of first row divided by value in row of leaving variable (minIdx)
+        minAbsVal = float("inf")
+        minAbsValIdx = -1
+        for j in range(len(table[0]) - 1):
+            y = table[minIdx][j]
+            if y < 0:
+                val = abs(table[0][j] / y)
+                if val < minAbsVal:
+                    minAbsVal = val
+                    minAbsValIdx = j
 
-    # Divide minIdx row by corresponding pivot
-    pivot = table[minIdx][minAbsValIdx]
-    for j in range(len(table[0])):
-        table[minIdx][j] /= pivot
+        # Assert minAbsValIdx != -1 (unbounded)
+        # if minAbsValIdx == -1:
+        #     print('minAbsVal error in dual simplex')
+        #     status = "Failure"
 
-    # Update other rows
-    for i in range(len(table)):
-        if i != minIdx:
-            pivot = table[i][minAbsValIdx]
-            for j in range(len(table[0])):
-                table[i][j] -= pivot * table[minIdx][j]
+        if minAbsValIdx == -1:
+            status = "Unbounded"
+            break
+        
+        # Update basic variables set. Here, table basic variables are 1-indexed (because we skip 1st row) and basic variables index set is 0-indexed
+        basic[minIdx - 1] = minAbsValIdx
+
+        # Divide minIdx row by corresponding pivot
+        pivot = table[minIdx][minAbsValIdx]
+        for j in range(len(table[0])):
+            table[minIdx][j] /= pivot
+
+        # Update other rows
+        for i in range(len(table)):
+            if i != minIdx:
+                pivot = table[i][minAbsValIdx]
+                for j in range(len(table[0])):
+                    table[i][j] -= pivot * table[minIdx][j]
+
+        # Leaving variable is the row index of most negative value in RHS (last) column
+        minVal = float("inf")
+        minIdx = -1                              # index of leaving variable
+        for i in range(1, len(table)):
+            val = table[i][-1]
+            if val < minVal:
+                minVal = val
+                minIdx = i
     
     return table, basic, status
 
@@ -299,7 +330,7 @@ if twoPhased:
             A1[i].append(val)
 
     # Update the basic variables list to include artificial variables
-    for i in range(n, n + num_artificial):
+    for i in range(n, t):
         basic.append(i)
 
     # Order the basic variables by position of 1 in identity column (based on row)
@@ -315,14 +346,7 @@ if twoPhased:
         e.append(1)
 
     # Initialize vector of decision variables (non-basic variables are 0 and basic variables are elements of b)
-    x = []
-    i = 0
-    for j in range(t):
-        val = 0
-        if j in ordered_basic:
-            val = b[i]
-            i += 1
-        x.append(val)
+    x = initial_x0(ordered_basic, t, b)
 
     ################################### Initialize tableau form ###################################
     # First row (augmented with objective value in last column)
@@ -359,34 +383,29 @@ if twoPhased:
     
     # Check for infeasibility 
     # 1. Artificial variables need to be 0 (account for floating point error)
-    infeasible = False
     for i in range(n, t):
         if abs(solution[i]) > 0.001:
-            infeasible = True
             status = "Infeasible"
             break
             
     # 2. Objective value needs to be 0 (account for floating point error)
     if abs(table[0][-1]) > 0.001:
-        infeasible = True
         status = "Infeasible"
 
-    if infeasible:
-        display_result(table, basic, status)
-    else:
+    if status != "Infeasible":
         ########################################### Phase 2 ###########################################
         
         # Form a new table with lesser columns without the artificial variables
         new_table = [[-i for i in c]]
         new_table[0].append(0)
         for i in range(1, len(table)):
-            # Don't add rows corresponding to artificial variables
+            # Don't add rows corresponding to artificial variables (in case of redundant constraint)
             if basic[i-1] < n:
                 row = table[i][:n]
                 row.append(table[i][-1])
                 new_table.append(row)
 
-        # Modify basic to not include artificial variables
+        # Modify basic to exclude artificial variables (in case of redundant constraint)
         new_basic = []
         for j in basic:
             if j < n:
@@ -448,59 +467,58 @@ for val in optimal_point:
         cutting_plane = True
         break
 
-if cutting_plane:
+while status != "Infeasible" and cutting_plane:
     #################################### Cutting Plane Method ####################################
 
-    while cutting_plane:
-
-        # Find first cutting plane by finding rowIdx, the row of maximum fractional value in last/RHS column
-        maxFrac = float("-inf")
-        rowIdx = -1
-        for i in range(1, len(table)):
+    # Find first cutting plane by finding rowIdx, the row of maximum fractional value in last/RHS column
+    maxFrac = float("-inf")
+    rowIdx = -1
+    for i in range(1, len(table)):
+        if basic[i-1] < N:
             val = table[i][-1]
             frac = abs(val - int(val))
-            if frac > 0.001 and frac > maxFrac:
+            if frac > maxFrac:
                 maxFrac = frac
                 rowIdx = i
-        
-        # Error
-        # if rowIdx == -1:
-        #     print('Row idx is -1')
-        #     break
+    
+    # Error
+    # if rowIdx == -1:
+    #     print('Row idx is -1')
+    #     break
 
-        cp = table[rowIdx][:]
+    cp = table[rowIdx][:]
 
-        # Modify the inequality at rowIdx
-        for i in range(len(cp)):
-            cp[i] = math.floor(cp[i])
+    # Modify the inequality at rowIdx
+    for i in range(len(cp)):
+        cp[i] = math.floor(cp[i])
 
-        for i in range(len(cp)):
-            cp[i] -= table[rowIdx][i]
+    for i in range(len(cp)):
+        cp[i] -= table[rowIdx][i]
 
-        # Add slack variable and extra row (new equality with new slack variable)
-        cp.append(cp[-1])
-        cp[-2] = 1
-        for i in range(len(table)):
-            table[i].append(table[i][-1])
-            table[i][-2] = 0
-        table.append(cp)
+    # Add slack variable and extra row (new equality with new slack variable)
+    cp.append(cp[-1])
+    cp[-2] = 1
+    for i in range(len(table)):
+        table[i].append(table[i][-1])
+        table[i][-2] = 0
+    table.append(cp)
 
-        # Add new slack variable to basic variables
-        basic.append(len(cp) - 2)
+    # Add new slack variable to basic variables
+    basic.append(len(cp) - 2)
 
-        # Run simplex algorithm
-        table, basic, status = dual_simplex(table, basic)
+    # Run simplex algorithm
+    table, basic, status = dual_simplex(table, basic)
 
-        # Store result in variables
-        solution = get_solution(table, basic, len(table[0]) - 1)
-        optimal_point = solution[:N]
+    # Store result in variables
+    solution = get_solution(table, basic, len(table[0]) - 1)
+    optimal_point = solution[:N]
 
-        # Check for integer solution
-        cutting_plane = False
-        for val in optimal_point:
-            if abs(val - int(val)) > 0.001:
-                cutting_plane = True
-                break
+    # Check for integer solution
+    cutting_plane = False
+    for val in optimal_point:
+        if abs(val - int(val)) > 0.001:
+            cutting_plane = True
+            break
 
     ##############################################################################################
     
