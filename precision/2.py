@@ -387,26 +387,32 @@ if twoPhased:
         display_result(table, basic, status)
     else:
         ########################################### Phase 2 ###########################################
-
+        
         # Form a new table with lesser columns without the artificial variables
         new_table = [[-i for i in c]]
         new_table[0].append(0)
         for i in range(1, len(table)):
-            row = table[i][:n]
-            row.append(table[i][-1])
-            new_table.append(row)
+            # Don't add rows corresponding to artificial variables
+            if basic[i-1] < n:
+                row = table[i][:n]
+                row.append(table[i][-1])
+                new_table.append(row)
+
+        # Modify basic to not include artificial variables
+        new_basic = []
+        for j in basic:
+            if j < n:
+                new_basic.append(j)
+        basic = new_basic
 
         # Make basic variables zero in 1st row
-        for j in basic:
-            pivot = new_table[0][j]
+        for j in range(len(basic)):
+            basicVarIdx = basic[j]
+            pivot = new_table[0][basicVarIdx]
             if pivot != 0:
-                idx = 0
-                for i in range(1, m+1):
-                    if new_table[i][j] == 1:
-                        idx = i
-                        break
+                rowIdx = j+1   # Since the 1 in the column of a basic variable is located at the corresponding row of the basic variable
                 for i in range(n+1):
-                    new_table[0][i] -= pivot * new_table[idx][i]
+                    new_table[0][i] -= pivot * new_table[rowIdx][i]
 
         # Run simplex algorithm
         new_table, basic, status = simplex(new_table, basic)
