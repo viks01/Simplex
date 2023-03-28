@@ -461,10 +461,16 @@ else:
 solution = get_solution(table, basic, len(table[0]) - 1)
 optimal_point = solution[:N]
 
+# Fix floating point error
+for i in range(N):
+    val = optimal_point[i]
+    if abs(val - round(val)) < 0.001:
+        optimal_point[i] = round(val)
+
 # Check for integer solution
 cutting_plane = False
 for val in optimal_point:
-    if abs(val - int(val)) > 0.001:
+    if val != int(val):
         cutting_plane = True
         break
 
@@ -514,10 +520,16 @@ while status != "Infeasible" and cutting_plane:
     solution = get_solution(table, basic, len(table[0]) - 1)
     optimal_point = solution[:N]
 
+    # Fix floating point error
+    for i in range(N):
+        val = optimal_point[i]
+        if abs(val - round(val)) < 0.001:
+            optimal_point[i] = round(val)
+
     # Check for integer solution
     cutting_plane = False
     for val in optimal_point:
-        if abs(val - int(val)) > 0.001:
+        if val != int(val):
             cutting_plane = True
             break
 
