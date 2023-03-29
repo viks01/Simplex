@@ -474,7 +474,7 @@ for val in optimal_point:
         cutting_plane = True
         break
 
-while status != "Infeasible" and cutting_plane:
+while status != "Infeasible" and status != "Unbounded" and cutting_plane:
     #################################### Cutting Plane Method ####################################
 
     # Find first cutting plane by finding rowIdx, the row of maximum fractional value in last/RHS column
